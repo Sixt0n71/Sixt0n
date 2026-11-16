@@ -1,7 +1,7 @@
 const main = document.querySelector('main');
 const nav = document.querySelector('nav');
 const language = document.querySelector('#language');
-let en = false;
+let en = true;
 const menuToggle=document.createElement('button');
 menuToggle.className='menu-toggle';menuToggle.type='button';
 menuToggle.innerHTML='<i></i><i></i>';
@@ -22,8 +22,17 @@ function element(tag, cls, value) {
 function link(hash, cls, label) {
   const a = element('a', cls, label); a.href = '#' + hash; return a;
 }
+function robloxTitle(raw) {
+  const words = raw.replace(/^sixt[o0]n[-_ ]+\d+[-_ ]+/i, '').replace(/[-_]+/g, ' ').trim();
+  return words.replace(/\b[a-z]/g, letter => letter.toUpperCase()).replace(/\bSciFi\b/gi, 'Sci-Fi');
+}
 function items(id) {
-  return window.portfolioWorks.filter(work => work.category === id && work.image);
+  const list = window.portfolioWorks.filter(work => work.category === id && work.image);
+  const category = categories.find(entry => entry.id === id);
+  if (!category || !/^roblox$/i.test(category.ar.trim())) return list;
+  const sequence = work => Number(work.title?.match(/^sixt[o0]n[-_ ]+(\d+)/i)?.[1] ?? Infinity);
+  return list.sort((a,b) => sequence(a) - sequence(b) || a.title.localeCompare(b.title))
+    .map(work => ({...work, title: robloxTitle(work.title || '')}));
 }
 function title(cat) { return en ? cat.en || cat.ar : cat.ar; }
 function isSleepThumbnail(work) {
@@ -113,6 +122,8 @@ function render() {
   const [page,id]=location.hash.slice(1).split('/');
   const current=['about','work','ads'].includes(page)?page:'home';
   document.body.dataset.page=current;
+  nav.setAttribute('aria-label',t('\u0627\u0644\u0642\u0627\u0626\u0645\u0629','Navigation'));
+  document.querySelector('.skip').textContent=t('\u0627\u0646\u062a\u0642\u0644 \u0625\u0644\u0649 \u0627\u0644\u0645\u062d\u062a\u0648\u0649','Skip to content');
   nav.replaceChildren();
   for(const [key,label] of [['home',copyText("3")],['work',copyText("4")],['ads',copyText('ads')],['about',copyText("5")]]) {
     const a=link(key,'nav-link');
@@ -161,7 +172,7 @@ function render() {
       archive(main);
     }
     else {
-      const list=items(cat.id), grid=element('div','gallery');
+      const list=items(cat.id), grid=element('div', /^roblox$/i.test(cat.ar.trim()) ? 'gallery roblox-gallery' : 'gallery');
       for(const work of list){const figure=element('figure');figure.append(photo(work,'work-img'));if(work.title)figure.append(element('figcaption','',work.title));if(isSleepThumbnail(work))figure.append(element('p','sleep-description',sleepDescription()));grid.append(figure);}
       main.append(list.length?grid:element('p','empty',copyText("19")));
     }
@@ -200,6 +211,7 @@ bootSite();
   }
   const observer=new IntersectionObserver(entries=>{entries.filter(e=>e.isIntersecting).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top).forEach((entry,i)=>{const state=states.get(entry.target);if(!state)return;observer.unobserve(entry.target);state.start=performance.now()+Math.min(i,3)*100;entry.target.classList.add('is-typing');});if(!frame)frame=requestAnimationFrame(tick);},{threshold:0,rootMargin:'0px 0px -12px 0px'});
   function prepare(node,force=false){
+    if(node.closest('.roblox-gallery figcaption')) return;
     if(seen.has(node)||!node.textContent.trim()||node.closest('[hidden],[aria-hidden="true"],dialog,.clock-face,.clock-zone')||(!force&&getComputedStyle(node).visibility==='hidden'))return;
     if(node.parentElement?.closest(selector)?.closest('main,footer,nav'))return;
     seen.add(node);const nodes=[];const walker=document.createTreeWalker(node,NodeFilter.SHOW_TEXT,{acceptNode(text){return text.textContent.trim()&&!text.parentElement.closest('svg,style,script,tw-word,[aria-hidden="true"]')?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;}});while(walker.nextNode())nodes.push(walker.currentNode);

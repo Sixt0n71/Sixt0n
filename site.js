@@ -11,7 +11,17 @@ async function request(path,obj){
  return r.json();
 }
 function localDB(){return new Promise((resolve,reject)=>{const r=indexedDB.open('sixton-admin-v1',2);r.onupgradeneeded=()=>{for(const name of ['site','media'])if(!r.result.objectStoreNames.contains(name))r.result.createObjectStore(name);};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
-function bootSite(){site=defaultSite();applyState();render();}
+async function bootSite(){
+ site=defaultSite();let saved;
+ if(location.protocol!=='file:'){try{const v=await request('site');if(Number.isInteger(v.revision)){live=true;logged=v.logged;revision=v.revision;saved=v.data;}}catch{}}
+ if(!live){try{db=await localDB();saved=await new Promise((resolve,reject)=>{const r=db.transaction('site').objectStore('site').get('state');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}catch{}}
+ let gallery={categories:site.categories,works:site.works};
+ if(live){
+   try{gallery=await request('gallery');}
+   catch{gallery.loadFailed=true;}
+ }
+ site={...site,...saved,...gallery};applyState();render();
+}
 function withEdition(defaults,saved){
  const result={...defaults,...saved};
  if(saved && !saved.editionLoaded){

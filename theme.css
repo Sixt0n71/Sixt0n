@@ -291,3 +291,7 @@ tw-run{display:inline;font:inherit;color:inherit;letter-spacing:inherit;line-hei
 .thani-piece>span{display:flex;justify-content:space-between;align-items:center;padding:8px 2px}
 .thani-piece:hover>span,.thani-piece:focus-visible>span{text-decoration:underline;text-underline-offset:4px}
 @media(max-width:600px){.thani-product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+.gallery.roblox-gallery { display:grid; columns:auto; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; gap:clamp(14px,2vw,28px); }
+.gallery.roblox-gallery figure { display:block; margin:0; }
+.gallery.roblox-gallery figcaption { position:static; margin:0; max-width:none; width:auto; padding:12px 16px; animation:none; transform:none; border:0; border-top:1px solid #cde4ff21; border-radius:0; background:#0b131a; font:500 15px/1.5 system-ui,sans-serif; direction:ltr; text-align:start; color:#e3eff7; }
+@media(max-width:700px){.gallery.roblox-gallery{grid-template-columns:minmax(0,1fr)}}
