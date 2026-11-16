@@ -52,6 +52,17 @@ function studioOverview(){
     description:t('من رسم الشعار إلى طباعته على الكوب. استعرض تطبيقات الهوية ومقاسات كل قطعة.','From the first logo sketch to the printed cup. Explore the applications and production dimensions.'),
     image:'assets/rawwiq-hot-cup.jpg',route:'work/rawq',action:t('استعرض الهوية','Explore the identity')
   }];
+  const roblox = site.categories.find(category => category.ar.trim().toLowerCase() === 'roblox');
+  const robloxWorks = roblox ? items(roblox.id) : [];
+  if (robloxWorks.length) {
+    projects.unshift({
+      name: t('\u0623\u0639\u0645\u0627\u0644 \u0631\u0648\u0628\u0644\u0648\u0643\u0633', 'Roblox artwork'),
+      description: t('\u062a\u0635\u0627\u0645\u064a\u0645 Roblox', 'Roblox game thumbnails'),
+      image: robloxWorks[0].image,
+      route: 'work/' + roblox.id,
+      action: t('\u0627\u0641\u062a\u062d \u0627\u0644\u0645\u0639\u0631\u0636', 'Open gallery')
+    });
+  }
   const thumbnail=site.works.find(work=>work.title==='تحدي النوم مع فارس');
   if(thumbnail)projects.push({
     name:t('تحدي النوم مع فارس','Faris sleep challenge'),
