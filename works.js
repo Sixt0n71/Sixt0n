@@ -1,86 +1,27 @@
-window.portfolioCategories = [
-  {
-    "id": "2KrYtdin2YXZitmFINir2KfZhdio2YbZitmE",
-    "ar": "تصاميم ثامبنيل",
-    "en": "Thumbnail designs"
-  },
-  {
-    "id": "Um9ibG94",
-    "ar": "Roblox",
-    "en": "Roblox"
-  }
+---
+layout: null
+---
+const publicPaths = [
+{% for file in site.static_files %}{% assign prefix = file.path | slice: 0, 7 %}{% if prefix == '/works/' %}{{ file.path | jsonify }},
+{% endif %}{% endfor %}
 ];
-window.portfolioWorks = [
-  {
-    "id": "assets/faris-sleep-thumbnail.png",
-    "category": "2KrYtdin2YXZitmFINir2KfZhdio2YbZitmE",
-    "title": "تحدي النوم مع فارس",
-    "image": "assets/faris-sleep-thumbnail.png"
-  },
-  {
-    "id": "works/Roblox/roll_emote_offline.webp",
-    "category": "Um9ibG94",
-    "title": "roll_emote_offline",
-    "image": "../works/Roblox/roll_emote_offline.webp"
-  },
-  {
-    "id": "works/Roblox/Sixt0n-01-Pet-Simulator.webp",
-    "category": "Um9ibG94",
-    "title": "Sixt0n-01-Pet-Simulator",
-    "image": "../works/Roblox/Sixt0n-01-Pet-Simulator.webp"
-  },
-  {
-    "id": "works/Roblox/Sixt0n-02-Forest-Survival.webp",
-    "category": "Um9ibG94",
-    "title": "Sixt0n-02-Forest-Survival",
-    "image": "../works/Roblox/Sixt0n-02-Forest-Survival.webp"
-  },
-  {
-    "id": "works/Roblox/Sixt0n-03-Luxury-Roleplay.webp",
-    "category": "Um9ibG94",
-    "title": "Sixt0n-03-Luxury-Roleplay",
-    "image": "../works/Roblox/Sixt0n-03-Luxury-Roleplay.webp"
-  },
-  {
-    "id": "works/Roblox/Sixt0n-04-Anime-Battle.webp",
-    "category": "Um9ibG94",
-    "title": "Sixt0n-04-Anime-Battle",
-    "image": "../works/Roblox/Sixt0n-04-Anime-Battle.webp"
-  },
-  {
-    "id": "works/Roblox/Sixt0n-05-Lava-Obby.webp",
-    "category": "Um9ibG94",
-    "title": "Sixt0n-05-Lava-Obby",
-    "image": "../works/Roblox/Sixt0n-05-Lava-Obby.webp"
-  },
-  {
-    "id": "works/Roblox/Sixt0n-06-Laundromat-Tycoon.webp",
-    "category": "Um9ibG94",
-    "title": "Sixt0n-06-Laundromat-Tycoon",
-    "image": "../works/Roblox/Sixt0n-06-Laundromat-Tycoon.webp"
-  },
-  {
-    "id": "works/Roblox/Sixt0n-07-Tactical-SciFi.webp",
-    "category": "Um9ibG94",
-    "title": "Sixt0n-07-Tactical-SciFi",
-    "image": "../works/Roblox/Sixt0n-07-Tactical-SciFi.webp"
-  },
-  {
-    "id": "works/Roblox/Sixt0n-08-Pirate-Adventure.webp",
-    "category": "Um9ibG94",
-    "title": "Sixt0n-08-Pirate-Adventure",
-    "image": "../works/Roblox/Sixt0n-08-Pirate-Adventure.webp"
-  },
-  {
-    "id": "works/Roblox/Sixt0n-09-Street-Racing.webp",
-    "category": "Um9ibG94",
-    "title": "Sixt0n-09-Street-Racing",
-    "image": "../works/Roblox/Sixt0n-09-Street-Racing.webp"
-  },
-  {
-    "id": "works/Roblox/Sixt0n-10-Fantasy-Kingdom.webp",
-    "category": "Um9ibG94",
-    "title": "Sixt0n-10-Fantasy-Kingdom",
-    "image": "../works/Roblox/Sixt0n-10-Fantasy-Kingdom.webp"
+const webpPaths = new Set(publicPaths.filter(path => /\.webp$/i.test(path)).map(path => path.slice(0, -5)));
+const folders = new Map();
+const works = [];
+const order = new Intl.Collator('ar', {numeric:true});
+for (const path of publicPaths.sort(order.compare)) {
+  if (path.startsWith('/works/Roblox/') && /\.png$/i.test(path) && webpPaths.has(path.slice(0, -4))) continue;
+  const parts = path.split('/');
+  if (parts.length !== 4) continue;
+  const [, , folder, name] = parts;
+  if (!folder || folder.startsWith('.') || name.startsWith('.') || !/\.(png|jpe?g|gif|webp|avif)$/i.test(name)) continue;
+  if (!folders.has(folder)) {
+    const bytes = new TextEncoder().encode(folder);
+    const id = btoa(String.fromCharCode(...bytes)).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_');
+    folders.set(folder, {id, ar:folder, en:folder});
   }
-];
+  const image = 'works/' + encodeURIComponent(folder) + '/' + encodeURIComponent(name);
+  works.push({id:image, category:folders.get(folder).id, title:name.replace(/\.[^.]+$/,''), image});
+}
+window.portfolioCategories = Array.from(folders.values());
+window.portfolioWorks = works;
