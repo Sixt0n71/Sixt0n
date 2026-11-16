@@ -1,0 +1,7 @@
+@media(prefers-reduced-motion:no-preference){
+  main .text-reveal-pending,footer .text-reveal-pending{opacity:0}
+  /* Individual text now owns entry timing; avoid doubling the hero entrance. */
+  .mist-content{animation:none}
+}
+@media(prefers-reduced-motion:reduce){.text-reveal-pending{opacity:1!important}}
+@media print{.text-reveal-pending{opacity:1!important;transform:none!important;filter:none!important}}
